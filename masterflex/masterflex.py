@@ -48,7 +48,7 @@ class MasterflexSerial():
                     p = cls(pump_addr, port_path)
                     status = p.requestStatus()
                     if status:
-                        found_devices.append((port_path, status))
+                        found_devices.append((p, port_path, status))
                 except OSError as e:
                     if e.errno != 16:   # Resource busy
                         raise
@@ -164,13 +164,18 @@ class MasterflexSerial():
         ''' (G) Go Turn pump on and auxiliary output if preset,
             run for number of revolutions set by V command '''
         cmd = self._standardCommand('G')
-        return self._sendReceive(cmd)
+        if abs(int(float(self.requestMotorSpeed()[2:-1]))) <= 0.1:
+            return self.halt()
+        else:        
+            return self._sendReceive(cmd)
     
     def goContinuous(self):
         ''' (G) Go Turn pump on and auxiliary output if preset, 
             run continuously until Halt '''
-        cmd = self._standardCommand('G', 0)
-        return self._sendReceive(cmd)
+        if int(float(self.requestMotorSpeed()[2:-1])) == 0:
+            return self.halt()
+        else:
+            return self._sendReceive(cmd)
     
     def halt(self):
         ''' (H) Halt (turn pump off) '''
