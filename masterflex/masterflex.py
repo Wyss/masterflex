@@ -172,6 +172,7 @@ class MasterflexSerial():
     def goContinuous(self):
         ''' (G) Go Turn pump on and auxiliary output if preset, 
             run continuously until Halt '''
+		cmd = self._standardCommand('G', 0)
         if int(float(self.requestMotorSpeed()[2:-1])) == 0:
             return self.halt()
         else:
